@@ -41,10 +41,13 @@ from apps.authentication.models import (
 # persistence concerns — `User.failed_login_attempts`/`locked_until` are
 # policy-free counters (see models.py); the threshold/duration applied
 # to them lives here until a dedicated service layer owns it.
-LOGIN_LOCKOUT_THRESHOLD: int = getattr(settings, "AUTH_LOGIN_LOCKOUT_THRESHOLD", 10)
-LOGIN_LOCKOUT_DURATION: timedelta = getattr(
-    settings, "AUTH_LOGIN_LOCKOUT_DURATION", timedelta(minutes=15)
-)
+# LOGIN_LOCKOUT_THRESHOLD: int = getattr(settings, "AUTH_LOGIN_LOCKOUT_THRESHOLD", 10)
+# LOGIN_LOCKOUT_DURATION: timedelta = getattr(
+#     settings, "AUTH_LOGIN_LOCKOUT_DURATION", timedelta(minutes=15)
+# )
+DEFAULT_LOGIN_LOCKOUT_THRESHOLD = 10
+DEFAULT_LOGIN_LOCKOUT_DURATION = timedelta(minutes=15)
+
 
 _GENERIC_LOGIN_ERROR = "Unable to log in with the provided credentials."
 _GENERIC_TOKEN_ERROR = "Invalid or expired token."
@@ -80,8 +83,22 @@ def _register_failed_login(email: str) -> None:
     if user is None:
         return
     user.failed_login_attempts += 1
-    if user.failed_login_attempts >= LOGIN_LOCKOUT_THRESHOLD:
-        user.locked_until = timezone.now() + LOGIN_LOCKOUT_DURATION
+    # if user.failed_login_attempts >= LOGIN_LOCKOUT_THRESHOLD:
+    #     user.locked_until = timezone.now() + LOGIN_LOCKOUT_DURATION
+    lockout_threshold = getattr(
+        settings,
+        "AUTH_LOGIN_LOCKOUT_THRESHOLD",
+        DEFAULT_LOGIN_LOCKOUT_THRESHOLD,
+    )
+
+    lockout_duration = getattr(
+        settings,
+        "AUTH_LOGIN_LOCKOUT_DURATION",
+        DEFAULT_LOGIN_LOCKOUT_DURATION,
+    )
+
+    if user.failed_login_attempts >= lockout_threshold:
+        user.locked_until = timezone.now() + lockout_duration
     user.save(update_fields=["failed_login_attempts", "locked_until", "updated_at"])
 
 

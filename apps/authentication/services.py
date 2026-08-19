@@ -88,8 +88,10 @@ VERIFICATION_TOKEN_LIFETIME: timedelta = getattr(
 PASSWORD_RESET_TOKEN_LIFETIME: timedelta = getattr(
     settings, "AUTH_PASSWORD_RESET_TOKEN_LIFETIME", timedelta(hours=1)
 )
-LOGIN_LOCKOUT_THRESHOLD: int = getattr(settings, "AUTH_LOGIN_LOCKOUT_THRESHOLD", 10)
-LOGIN_LOCKOUT_DURATION: timedelta = getattr(settings, "AUTH_LOGIN_LOCKOUT_DURATION", timedelta(minutes=15))
+# LOGIN_LOCKOUT_THRESHOLD: int = getattr(settings, "AUTH_LOGIN_LOCKOUT_THRESHOLD", 10)
+# LOGIN_LOCKOUT_DURATION: timedelta = getattr(settings, "AUTH_LOGIN_LOCKOUT_DURATION", timedelta(minutes=15))
+DEFAULT_LOGIN_LOCKOUT_THRESHOLD = 10
+DEFAULT_LOGIN_LOCKOUT_DURATION = timedelta(minutes=15)
 
 
 # ---------------------------------------------------------------------------
@@ -308,8 +310,22 @@ def _register_failed_login(email: str) -> None:
     if user is None:
         return
     user.failed_login_attempts += 1
-    if user.failed_login_attempts >= LOGIN_LOCKOUT_THRESHOLD:
-        user.locked_until = timezone.now() + LOGIN_LOCKOUT_DURATION
+    # if user.failed_login_attempts >= LOGIN_LOCKOUT_THRESHOLD:
+    #     user.locked_until = timezone.now() + LOGIN_LOCKOUT_DURATION
+    lockout_threshold = getattr(
+        settings,
+        "AUTH_LOGIN_LOCKOUT_THRESHOLD",
+        DEFAULT_LOGIN_LOCKOUT_THRESHOLD,
+    )
+
+    lockout_duration = getattr(
+        settings,
+        "AUTH_LOGIN_LOCKOUT_DURATION",
+        DEFAULT_LOGIN_LOCKOUT_DURATION,
+    )
+
+    if user.failed_login_attempts >= lockout_threshold:
+        user.locked_until = timezone.now() + lockout_duration
     user.save(update_fields=["failed_login_attempts", "locked_until", "updated_at"])
 
 

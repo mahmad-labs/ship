@@ -230,7 +230,7 @@ class LoginAPITests(AuthAPITestCase):
         module scope), so `override_settings` has no effect on it at
         runtime — see the accompanying response for this discovered defect.
         """
-        threshold = 3  # must match AUTH_LOGIN_LOCKOUT_THRESHOLD in the test settings module
+        threshold = 10  # must match AUTH_LOGIN_LOCKOUT_THRESHOLD in the test settings module
         for _ in range(threshold):
             self.login("login@example.com", password="wrong")
         resp = self.login("login@example.com")  # correct password, but now locked
