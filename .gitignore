@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environment
+venv/
+.venv/
+env/
+ENV/
+
+# Django
+db.sqlite3
+*.log
+media/
+staticfiles/
+
+# Environment variables / secrets
+.env
+.env.*
+!.env.example
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing / coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Build files
+*.egg-info/
+dist/
+build/
+
+# Documentations
+docs/*
+
+# Secrets
+credentials.txt
