@@ -16,6 +16,13 @@ from datetime import timedelta
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
+# For Environment Variables
+import environ
+
+env = environ.Env()
+
+env.read_env(BASE_DIR / ".env")
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
@@ -45,6 +52,7 @@ INSTALLED_APPS = [
     # Ship apps
     "apps.core.apps.CoreConfig",
     "apps.authentication.apps.AuthenticationConfig",
+    "apps.market_analyst.apps.MarketAnalystConfig",
 ]
 
 REST_FRAMEWORK = {
@@ -166,3 +174,26 @@ AUTH_USER_MODEL = "authentication.User"
 AUTH_LOGIN_LOCKOUT_THRESHOLD = 10
 
 AUTH_LOGIN_LOCKOUT_DURATION = timedelta(minutes=15)
+
+
+
+# -----------------------------------------------------------------------------
+# Celery
+# -----------------------------------------------------------------------------
+
+CELERY_BROKER_URL = env("CELERY_BROKER_URL")
+CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND")
+
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_ENABLE_UTC = True
+
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60
+CELERY_TASK_SOFT_TIME_LIMIT = 25 * 60
+
+CELERY_WORKER_PREFETCH_MULTIPLIER = 1
+CELERY_TASK_ACKS_LATE = True
